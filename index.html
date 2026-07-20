@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界之外 - 我的專屬攻略庫</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #161f32;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-hover: #7dd3fc;
+            --tag-bg: #1e293b;
+            --tag-active: #0284c7;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background-color: rgba(22, 31, 50, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .logo-area h1 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .search-area {
+            flex-grow: 1;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            background-color: var(--tag-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .filter-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-title {
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .clear-btn:hover {
+            text-decoration: underline;
+        }
+
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag-checkbox {
+            display: none;
+        }
+
+        .tag-label {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background-color: var(--tag-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .tag-label:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-hover);
+        }
+
+        .tag-checkbox:checked + .tag-label {
+            background-color: var(--tag-active);
+            border-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+        }
+
+        .posts-count {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .posts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .posts-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .post-title {
+            font-size: 1.2rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .post-content {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            flex-grow: 1;
+        }
+
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 0.8rem;
+        }
+
+        .post-item-tag {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>世界之外 ✧ 我的專屬攻略庫</h1>
+        </div>
+        <div class="search-area">
+            <input type="text" id="searchInput" class="search-input" placeholder="輸入關鍵字搜尋標題或內容...">
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-title">
+                <span>標籤多重篩選（點選多個可進行交集篩選）</span>
+                <button class="clear-btn" id="clearFilters">清除所有篩選</button>
+            </div>
+            <div class="tag-group" id="tagFiltersContainer"></div>
+        </div>
+
+        <div class="posts-count" id="postsCount">載入中...</div>
+
+        <div class="posts-grid" id="postsGrid"></div>
+    </div>
+
+    <script>
+        /**
+         * ==========================================
+         * 【 新增 / 修改貼文資料區 】
+         * 0 基礎的你，以後只需要改下面這段資料即可！
+         * 
+         * 每一篇貼文格式如下：
+         * {
+         *     title: "你的攻略標題",
+         *     tags: ["標籤1", "標籤2", "標籤3"],
+         *     content: `你的詳細攻略內容（可以直接換行）`
+         * },
+         * ==========================================
+         */
+        const POSTS_DATA = [
+            {
+                title: "崩塌世界 - 查理九世完美結局通關指南",
+                tags: ["主線", "密室", "完美結局"],
+                content: "1. 密室第一階段：點擊左側書架獲得「舊鑰匙」，用鑰匙打開右側抽屜。\n2. 密室第二階段：牆壁密碼為：1943。輸入後開啟暗門。\n3. 最後選擇：點擊「牽起他的手」，即可達成完美結局。"
+            },
+            {
+                title: "顧時夜因緣關卡 - 密室100%探索",
+                tags: ["顧時夜", "因緣", "100%探索"],
+                content: "注意：這個關卡有兩個隱藏道具必須拿到！\n- 第一個道具：沙發墊下方的「銀色吊墜」。\n- 第二個道具：窗台花盆背後的「日記本殘頁」。\n全部收集完畢後通關即可達成100%探索度。"
+            },
+            {
+                title: "易遇心魔挑戰 - 高分卡牌推薦",
+                tags: ["易遇", "心魔", "卡牌養成"],
+                content: "易遇的心魔關卡對「感知」屬性要求極高。\n建議陣容：\n1. 主卡：[世界之外-易遇·危險關係] (優先升滿)\n2. 副卡：[感知]屬性加成卡\n打法提示：第二輪技能記得留到Boss殘血時再放。"
+            },
+            {
+                title: "新手開局必看：答案手札系統解析",
+                tags: ["新手", "答案手札", "卡牌養成"],
+                content: "每天的「答案手札」次數一定要打滿！\n這是獲取卡牌升級材料最穩定的來源。\n平民玩家優先把資源留給SSR卡，不要均分給SR卡。"
+            },
+            {
+                title: "夏蕭因副本 - 隱藏支線選擇點",
+                tags: ["夏蕭因", "副本", "完美結局"],
+                content: "在第三章與夏蕭因對話時：\n務必選擇「相信他的直覺」，否則會直接進入普通結局。\n通關後可獲得專屬稱號。"
+            }
+        ];
+
+        // 核心功能邏輯
+        let selectedTags = new Set();
+        const searchInput = document.getElementById('searchInput');
+        const postsGrid = document.getElementById('postsGrid');
+        const tagFiltersContainer = document.getElementById('tagFiltersContainer');
+        const postsCount = document.getElementById('postsCount');
+        const clearFiltersBtn = document.getElementById('clearFilters');
+
+        function renderTagFilters() {
+            const allTags = new Set();
+            POSTS_DATA.forEach(post => {
+                post.tags.forEach(tag => allTags.add(tag));
+            });
+
+            tagFiltersContainer.innerHTML = '';
+            allTags.forEach(tag => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `tag-${tag}`;
+                checkbox.className = 'tag-checkbox';
+                checkbox.value = tag;
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedTags.add(tag);
+                    } else {
+                        selectedTags.delete(tag);
+                    }
+                    filterAndRenderPosts();
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = `tag-${tag}`;
+                label.className = 'tag-label';
+                label.textContent = `# ${tag}`;
+
+                tagFiltersContainer.appendChild(checkbox);
+                tagFiltersContainer.appendChild(label);
+            });
+        }
+
+        function filterAndRenderPosts() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            const filteredPosts = POSTS_DATA.filter(post => {
+                const matchesSearch = post.title.toLowerCase().includes(searchTerm) || 
+                                      post.content.toLowerCase().includes(searchTerm);
+                const matchesTags = Array.from(selectedTags).every(tag => post.tags.includes(tag));
+                return matchesSearch && matchesTags;
+            });
+
+            postsCount.textContent = `共找到 ${filteredPosts.length} 篇攻略`;
+
+            if (filteredPosts.length === 0) {
+                postsGrid.innerHTML = `<div class="no-results">找不到符合篩選條件的攻略貼文 ╮(╯_╰)╭</div>`;
+                return;
+            }
+
+            postsGrid.innerHTML = filteredPosts.map(post => `
+                <div class="post-card">
+                    <h2 class="post-title">${escapeHtml(post.title)}</h2>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    <div class="post-tags">
+                        ${post.tags.map(t => `<span class="post-item-tag"># ${escapeHtml(t)}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        searchInput.addEventListener('input', filterAndRenderPosts);
+
+        clearFiltersBtn.addEventListener('click', () => {
+            selectedTags.clear();
+            document.querySelectorAll('.tag-checkbox').forEach(cb => cb.checked = false);
+            searchInput.value = '';
+            filterAndRenderPosts();
+        });
+
+        renderTagFilters();
+        filterAndRenderPosts();
+    </script>
+</body>
+</html>
