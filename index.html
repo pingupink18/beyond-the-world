@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界之外 攻略資料庫</title>
+<style>
+  :root {
+    --bg: #14161c;
+    --card-bg: #1e212b;
+    --border: #2c303c;
+    --text-main: #e8e8ec;
+    --text-sub: #9a9dab;
+    --accent: #7c9eff;
+    --accent-bg: #263252;
+    --tag-bg: #262a36;
+    --tag-active-bg: #4a6bd6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Microsoft JhengHei", "PingFang TC", sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    padding: 24px 16px 60px;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; }
+  #search {
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card-bg); color: var(--text-main); font-size: 14px; margin-bottom: 18px;
+  }
+  .tag-group { margin-bottom: 14px; }
+  .tag-group-label { font-size: 12px; color: var(--text-sub); margin-bottom: 6px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-btn {
+    font-size: 12px; padding: 5px 12px; border-radius: 14px; border: 1px solid var(--border);
+    background: var(--tag-bg); color: var(--text-sub); cursor: pointer;
+  }
+  .tag-btn.active { background: var(--tag-active-bg); color: #fff; border-color: var(--tag-active-bg); }
+  #post-list { margin-top: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .post-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+    display: flex; gap: 12px; padding: 12px;
+  }
+  .post-card img { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #333; }
+  .post-main { flex: 1; min-width: 0; }
+  .post-title { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+  .post-title a { color: var(--text-main); text-decoration: none; }
+  .post-title a:hover { color: var(--accent); }
+  .post-excerpt { font-size: 13px; color: var(--text-sub); margin: 0 0 8px; line-height: 1.5; }
+  .post-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .post-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--accent-bg); color: var(--accent); }
+  .empty { text-align: center; color: var(--text-sub); padding: 40px 0; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>世界之外 攻略資料庫</h1>
+  </header>
+  <input id="search" type="text" placeholder="搜尋標題或內容...">
+  <div id="tag-filters"></div>
+  <div id="post-list"></div>
+</div>
+
+<script src="posts.js"></script>
+<script>
+  const tagFiltersEl = document.getElementById('tag-filters');
+  const postListEl = document.getElementById('post-list');
+  const searchEl = document.getElementById('search');
+  let selectedTags = new Set();
+
+  function renderTagFilters() {
+    tagFiltersEl.innerHTML = '';
+    Object.keys(TAG_GROUPS).forEach(groupName => {
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'tag-group';
+
+      const label = document.createElement('div');
+      label.className = 'tag-group-label';
+      label.textContent = groupName;
+      groupDiv.appendChild(label);
+
+      const row = document.createElement('div');
+      row.className = 'tag-row';
+
+      TAG_GROUPS[groupName].forEach(tag => {
+        const btn = document.createElement('button');
+        btn.className = 'tag-btn';
+        btn.textContent = tag;
+        if (selectedTags.has(tag)) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          if (selectedTags.has(tag)) {
+            selectedTags.delete(tag);
+          } else {
+            selectedTags.add(tag);
+          }
+          renderTagFilters();
+          renderPosts();
+        });
+        row.appendChild(btn);
+      });
+
+      groupDiv.appendChild(row);
+      tagFiltersEl.appendChild(groupDiv);
+    });
+  }
+
+  function renderPosts() {
+    const keyword = searchEl.value.trim().toLowerCase();
+
+    const filtered = posts.filter(post => {
+      const matchesTags = [...selectedTags].every(tag => post.tags.includes(tag));
+      const matchesKeyword = !keyword ||
+        post.title.toLowerCase().includes(keyword) ||
+        post.excerpt.toLowerCase().includes(keyword);
+      return matchesTags && matchesKeyword;
+    });
+
+    postListEl.innerHTML = '';
+
+    if (filtered.length === 0) {
+      postListEl.innerHTML = '<div class="empty">沒有符合條件的貼文</div>';
+      return;
+    }
+
+    filtered.slice().reverse().forEach(post => {
+      const card = document.createElement('div');
+      card.className = 'post-card';
+      card.innerHTML = `
+        <img src="${post.image}" alt="">
+        <div class="post-main">
+          <p class="post-title"><a href="${post.link}" target="_blank" rel="noopener">${post.title}</a></p>
+          <p class="post-excerpt">${post.excerpt}</p>
+          <div class="post-tags">
+            ${post.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      `;
+      postListEl.appendChild(card);
+    });
+  }
+
+  searchEl.addEventListener('input', renderPosts);
+
+  renderTagFilters();
+  renderPosts();
+</script>
+</body>
+</html>
